@@ -1,0 +1,49 @@
+language: "en-US"
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    - "!packages/docs/**"
+    - "!pnpm-lock.yaml"
+    - "!**/*.d.ts"
+    - "!**/*.d.cts"
+    - "!**/*.d.mts"
+  path_instructions:
+    - path: "packages/zod/src/**"
+      instructions: |
+        This is a TypeScript-first schema validation library (Zod v4).
+        Check for:
+        - Tree-shaking annotations: factory functions need `// @__NO_SIDE_EFFECTS__`, constructor calls need `/* @__PURE__ */`
+        - All import paths within src/ must end in `.js` (required for Node.js ESM with moduleResolution: nodenext)
+        - No `console.log`, `console.warn`, `console.error`, or `debugger` statements
+        - Use `util.defineLazy()` for any _zod internals that reference other schemas to avoid circular dependencies
+        - `any` is intentionally used in internal code — do not flag it
+        - Parameter reassignment is allowed for performance-critical parsing code
+        - New schemas must follow the $constructor/trait pattern from v4/core/core.ts
+    - path: "packages/zod/src/v4/classic/tests/**"
+      instructions: |
+        Test files for the classic Zod API.
+        Check for:
+        - Tests must use vitest (`import { expect, test, describe } from "vitest"`)
+        - Type-level assertions use `util.assertEqual<A, B>(true)` from v4/core/util.ts
+        - Both success and failure cases should be covered
+        - No `console.*` calls (fail-on-console.ts setup file will cause test failures)
+    - path: "packages/zod/src/v4/mini/tests/**"
+      instructions: |
+        Test files for the mini Zod API (no method chaining).
+        Same rules as classic tests — vitest, type assertions via util.assertEqual, no console calls.
+    - path: "packages/zod/src/v4/locales/**"
+      instructions: |
+        Locale files are $ZodErrorMap implementations. Each locale must handle all $ZodIssue
+        subtypes: invalid_type, too_big, too_small, invalid_format, not_multiple_of,
+        unrecognized_keys, invalid_union, invalid_key, invalid_element, invalid_value, custom.
+    - path: "packages/zod/src/v4/core/api.ts"
+      instructions: |
+        All exported factory functions must have `// @__NO_SIDE_EFFECTS__` immediately before
+        the function declaration. This is required for bundler tree-shaking.
+chat:
+  auto_reply: true
